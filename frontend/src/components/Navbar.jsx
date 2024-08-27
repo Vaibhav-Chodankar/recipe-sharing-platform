@@ -28,6 +28,9 @@ function Navbar() {
                         ) : (
                             <>
                                 <li className="nav-item">
+                                    <Link className="nav-link" to="/my-recipes">My Recipes</Link>
+                                </li>
+                                <li className="nav-item">
                                     <Link className="nav-link" to="/add-recipe">Add Recipe</Link>
                                 </li>
                                 <li className="nav-item">

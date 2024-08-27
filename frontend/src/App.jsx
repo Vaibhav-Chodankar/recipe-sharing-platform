@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -7,7 +8,8 @@ import Register from './pages/Register';
 import AddRecipe from './pages/AddRecipe';
 import RecipeDetail from './pages/RecipeDetail';
 import ProtectedRoute from './components/ProtectedRoute';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import MyRecipe from './pages/MyRecipe';
+import EditRecipe from './pages/EditRecipe';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
           <Route path="/add-recipe" element={<ProtectedRoute><AddRecipe /></ProtectedRoute>} />
+          <Route path="/edit-recipe/:id" element={<ProtectedRoute><EditRecipe /></ProtectedRoute>} />
+          <Route path="/my-recipes" element={<ProtectedRoute><MyRecipe /></ProtectedRoute>} />
         </Routes>
       </div>
     </Router>

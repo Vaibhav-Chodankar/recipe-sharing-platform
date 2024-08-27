@@ -7,24 +7,33 @@ function AddRecipe() {
     const [ingredients, setIngredients] = useState('');
     const [steps, setSteps] = useState('');
     const [cookingTime, setCookingTime] = useState('');
-    const [image, setImage] = useState(null); // New state for image
+    const [image, setImage] = useState(null);
+    const [category, setCategory] = useState('Appetizers'); // Default category
     const navigate = useNavigate();
 
     const handleImageChange = (e) => {
-        setImage(e.target.files[0]);
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('ingredients', ingredients);
-            formData.append('steps', steps);
-            formData.append('cookingTime', cookingTime);
-            if (image) {
-                formData.append('image', image);
-            }
+            const formData = {
+                title,
+                ingredients,
+                steps,
+                cookingTime,
+                image,
+                category, // Include category in the form data
+            };
+
             await addRecipe(formData);
             navigate('/');
         } catch (err) {
@@ -37,7 +46,7 @@ function AddRecipe() {
             <div className="card shadow-sm" style={{ width: '500px' }}>
                 <div className="card-body">
                     <h3 className="card-title text-center mb-4">Add New Recipe</h3>
-                    <form onSubmit={handleSubmit} encType="multipart/form-data">
+                    <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label htmlFor="title" className="form-label">Title</label>
                             <input
@@ -91,6 +100,29 @@ function AddRecipe() {
                                 onChange={handleImageChange}
                                 accept="image/*"
                             />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="category" className="form-label">Category</label>
+                            <select
+                                className="form-control"
+                                id="category"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                required
+                            >
+                                <option value="Appetizers">Appetizers</option>
+                                <option value="Breakfast">Breakfast</option>
+                                <option value="Main Dishes">Main Dishes</option>
+                                <option value="Side Dishes">Side Dishes</option>
+                                <option value="Desserts">Desserts</option>
+                                <option value="Beverages">Beverages</option>
+                                <option value="Salads">Salads</option>
+                                <option value="Soups">Soups</option>
+                                <option value="Snacks">Snacks</option>
+                                <option value="Sauces & Condiments">Sauces & Condiments</option>
+                                <option value="Vegetarian">Vegetarian</option>
+                                <option value="Vegan">Vegan</option>
+                            </select>
                         </div>
                         <button type="submit" className="btn btn-primary w-100">Add Recipe</button>
                     </form>

@@ -25,6 +25,24 @@ const RecipeSchema = new mongoose.Schema({
     image: {
         type: String,
     },
+    category: {
+        type: String,
+        enum: [
+            'Appetizers',
+            'Breakfast',
+            'Main Dishes',
+            'Side Dishes',
+            'Desserts',
+            'Beverages',
+            'Salads',
+            'Soups',
+            'Snacks',
+            'Sauces & Condiments',
+            'Vegetarian',
+            'Vegan'
+        ],
+        required: true,
+    },
     likes: [
         {
             user: {

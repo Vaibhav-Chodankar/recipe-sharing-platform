@@ -1,5 +1,4 @@
 const Recipe = require('../models/Recipe');
-const fs = require('fs');
 
 exports.getAllRecipes = async (req, res) => {
     try {
@@ -10,25 +9,26 @@ exports.getAllRecipes = async (req, res) => {
     }
 };
 
-exports.addRecipe = async (req, res) => {
-    const { title, ingredients, steps, cookingTime } = req.body;
-
-    let imageBase64 = null;
-
-    if (req.file) {
-        try {
-            // Read the image file and convert it to Base64
-            const imageBuffer = fs.readFileSync(req.file.path);
-            imageBase64 = imageBuffer.toString('base64');
-
-            fs.unlinkSync(req.file.path);
-        } catch (err) {
-            console.error('Error processing image:', err);
-            return res.status(500).json({ message: 'Error processing image', error: err.message });
-        }
+exports.getRecipeById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const recipes = await Recipe.findById(id).populate('user', 'name email');
+        res.status(200).json(recipes);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', err });
     }
+}
+
+exports.addRecipe = async (req, res) => {
+    const { title, ingredients, steps, cookingTime, image, category } = req.body;
 
     try {
+        let imageBase64 = null;
+
+        if (image) {
+            imageBase64 = image;
+        }
+
         const newRecipe = new Recipe({
             user: req.user.id,
             title,
@@ -36,12 +36,56 @@ exports.addRecipe = async (req, res) => {
             steps,
             cookingTime,
             image: imageBase64,
+            category, // Add category here
         });
 
         const recipe = await newRecipe.save();
         res.status(201).json(recipe);
     } catch (err) {
         console.error('Error saving recipe:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.getUserRecipes = async (req, res) => {
+    try {
+        const recipes = await Recipe.find({ user: req.user.id });
+        res.json(recipes);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.updateRecipe = async (req, res) => {
+    const { title, ingredients, steps, cookingTime, image, category } = req.body;
+
+    try {
+        let recipe = await Recipe.findById(req.params.id);
+
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+
+        // Make sure the user owns the recipe
+        if (recipe.user.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        recipe.title = title;
+        recipe.ingredients = ingredients;
+        recipe.steps = steps;
+        recipe.cookingTime = cookingTime;
+        recipe.category = category; // Update category here
+
+        // Only update the image if a new one is provided
+        if (image) {
+            recipe.image = image;
+        }
+
+        await recipe.save();
+
+        res.json(recipe);
+    } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
@@ -55,12 +99,14 @@ exports.deleteRecipe = async (req, res) => {
         }
 
         if (recipe.user.toString() !== req.user.id) {
-            return res.status(401).json({ message: 'User not authorized' });
+            return res.status(401).json({ message: 'Unauthorized' });
         }
 
-        await recipe.remove();
-        res.status(200).json({ message: 'Recipe removed' });
+        await Recipe.deleteOne({ _id: req.params.id });
+
+        res.json({ message: 'Recipe deleted' });
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error deleting recipe:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };

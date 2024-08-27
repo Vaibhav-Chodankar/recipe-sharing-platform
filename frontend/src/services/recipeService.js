@@ -18,3 +18,27 @@ export const addRecipe = (recipeData) => {
         },
     });
 };
+
+export const updateRecipe = (id, updatedRecipe) => {
+    return axios.put(`${API_URL}/edit-recipe/${id}`, updatedRecipe, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+};
+
+export const getUserRecipes = () => {
+    return axios.get(`${API_URL}/my-recipes`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+};
+
+export const deleteRecipe = (id) => {
+    return axios.delete(`${API_URL}/delete-recipe/${id}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+};
