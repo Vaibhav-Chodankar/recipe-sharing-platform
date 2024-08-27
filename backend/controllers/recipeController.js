@@ -1,4 +1,5 @@
 const Recipe = require('../models/Recipe');
+const fs = require('fs');
 
 exports.getAllRecipes = async (req, res) => {
     try {
@@ -10,7 +11,22 @@ exports.getAllRecipes = async (req, res) => {
 };
 
 exports.addRecipe = async (req, res) => {
-    const { title, ingredients, steps, cookingTime, image } = req.body;
+    const { title, ingredients, steps, cookingTime } = req.body;
+
+    let imageBase64 = null;
+
+    if (req.file) {
+        try {
+            // Read the image file and convert it to Base64
+            const imageBuffer = fs.readFileSync(req.file.path);
+            imageBase64 = imageBuffer.toString('base64');
+
+            fs.unlinkSync(req.file.path);
+        } catch (err) {
+            console.error('Error processing image:', err);
+            return res.status(500).json({ message: 'Error processing image', error: err.message });
+        }
+    }
 
     try {
         const newRecipe = new Recipe({
@@ -19,13 +35,14 @@ exports.addRecipe = async (req, res) => {
             ingredients,
             steps,
             cookingTime,
-            image,
+            image: imageBase64,
         });
 
         const recipe = await newRecipe.save();
         res.status(201).json(recipe);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error saving recipe:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
