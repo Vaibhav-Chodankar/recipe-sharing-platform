@@ -1,4 +1,5 @@
 const Recipe = require('../models/Recipe');
+const User = require('../models/User')
 
 exports.getAllRecipes = async (req, res) => {
     try {
@@ -176,26 +177,57 @@ exports.addCommentToRecipe = async (req, res) => {
 
 exports.addToCollection = async (req, res) => {
     const { collectionName } = req.body;
+    const recipeId = req.params.id; // Recipe ID from the route parameter
+
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id); // Get the user by ID
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if the collection already exists, if not create a new one
+        // Find the collection by name or create a new one
         let collection = user.collections.find(col => col.name === collectionName);
+
         if (!collection) {
+            // Ensure that the collection object is initialized properly
             collection = { name: collectionName, recipes: [] };
-            user.collections.push(collection);
+            user.collections.push(collection); // Add the collection to user's collections
         }
 
-        if (!collection.recipes.includes(req.params.id)) {
-            collection.recipes.push(req.params.id);
+        // Ensure that collection.recipes is always an array
+        if (!Array.isArray(collection.recipes)) {
+            collection.recipes = [];
         }
 
-        await user.save();
-        res.json({ message: 'Recipe added to collection', collection });
+        // Check if recipeId is already in the recipes array
+        if (!collection.recipes.some(recipe => recipe.equals(recipeId))) {
+            // Push the recipeId into the collection's recipes array
+            collection.recipes.push(recipeId);
+        } else {
+            return res.status(400).json({ message: 'Recipe already in collection' });
+        }
+
+        await user.save(); // Save user changes
+
+        res.status(200).json({ message: 'Recipe added to collection', collection });
     } catch (err) {
+        console.error('Error adding recipe to collection:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+
+exports.getUserCollections = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).populate('collections.recipes', 'title image'); // Populate recipes within each collection
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(user.collections);
+    } catch (err) {
+        console.error('Error fetching collections:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };

@@ -10,6 +10,7 @@ import RecipeDetail from './pages/RecipeDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import MyRecipe from './pages/MyRecipe';
 import EditRecipe from './pages/EditRecipe';
+import UserCollections from './pages/UserCollections';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/add-recipe" element={<ProtectedRoute><AddRecipe /></ProtectedRoute>} />
           <Route path="/edit-recipe/:id" element={<ProtectedRoute><EditRecipe /></ProtectedRoute>} />
           <Route path="/my-recipes" element={<ProtectedRoute><MyRecipe /></ProtectedRoute>} />
+          <Route path="/collections" element={<ProtectedRoute><UserCollections /></ProtectedRoute>} />
         </Routes>
       </div>
     </Router>

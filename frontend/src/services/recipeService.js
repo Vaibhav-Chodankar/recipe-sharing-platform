@@ -78,3 +78,11 @@ export const addToCollection = (recipeId, collectionName) => {
         }
     );
 };
+
+export const getUserCollections = () => {
+    return axios.get(`${API_URL}/collections`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+    });
+};
