@@ -187,21 +187,14 @@ exports.addToCollection = async (req, res) => {
 
         // Find the collection by name or create a new one
         let collection = user.collections.find(col => col.name === collectionName);
-
         if (!collection) {
-            // Ensure that the collection object is initialized properly
             collection = { name: collectionName, recipes: [] };
-            user.collections.push(collection); // Add the collection to user's collections
+            user.collections.push(collection);
+            collection = user.collections[user.collections.length - 1]; // Ensure we reference the new collection correctly
         }
 
-        // Ensure that collection.recipes is always an array
-        if (!Array.isArray(collection.recipes)) {
-            collection.recipes = [];
-        }
-
-        // Check if recipeId is already in the recipes array
+        // Add the recipe to the collection if it's not already present
         if (!collection.recipes.some(recipe => recipe.equals(recipeId))) {
-            // Push the recipeId into the collection's recipes array
             collection.recipes.push(recipeId);
         } else {
             return res.status(400).json({ message: 'Recipe already in collection' });
@@ -215,7 +208,6 @@ exports.addToCollection = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
-
 
 exports.getUserCollections = async (req, res) => {
     try {
