@@ -1,25 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getUserCollections } from '../services/recipeService';
+import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import DefaultImg from '../assets/recipe-placeholder.jpg';
+
+const TabContainer = styled.ul`
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+`;
+
+const TabButton = styled.button`
+    background-color: ${({ active }) => (active ? '#007bff' : 'white')};
+    color: ${({ active }) => (active ? 'white' : '#007bff')};
+    border: none;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 5px 5px 0 0;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+
+    &:hover {
+        background-color: ${({ active }) => (active ? '#0056b3' : '#e9ecef')};
+        color: ${({ active }) => (active ? 'white' : '#0056b3')};
+    }
+
+    &:focus {
+        outline: none;
+    }
+`;
+
+const TabContent = styled.div`
+    margin-top: 20px;
+`;
 
 function UserCollections() {
     const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState(null); // State to manage active collection tab
+    const [activeTab, setActiveTab] = useState(null);
 
     useEffect(() => {
         async function fetchCollections() {
             try {
                 const { data } = await getUserCollections();
-                
-                // Sort collections by created date in descending order
                 const sortedCollections = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
                 setCollections(sortedCollections);
-                setActiveTab(sortedCollections.length > 0 ? sortedCollections[0]._id : null); // Set the first tab as active
+                setActiveTab(sortedCollections.length > 0 ? sortedCollections[0]._id : null);
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching collections:', err);
+                toast.error('Failed to load collections. Please try again.');
                 setLoading(false);
             }
         }
@@ -28,59 +63,63 @@ function UserCollections() {
     }, []);
 
     if (loading) {
-        return <div className="text-center mt-5">Loading...</div>;
+        return <div className="text-center mt-5 pt-5">Loading...</div>;
     }
 
     return (
-        <div className="container mt-5">
-            <h2>Your Collections</h2>
+        <div className="container mt-5 pt-5">
+            <h2 className="mb-4">Your Collections</h2>
             {collections.length === 0 ? (
                 <p>No collections found. Start adding recipes to collections!</p>
             ) : (
                 <>
-                    {/* Tabs for Collections */}
-                    <ul className="nav nav-tabs mb-4">
+                    <TabContainer>
                         {collections.map((collection) => (
-                            <li key={collection._id} className="nav-item">
-                                <button
-                                    className={`nav-link ${activeTab === collection._id ? 'active' : ''}`}
+                            <li key={collection._id}>
+                                <TabButton
+                                    active={activeTab === collection._id}
                                     onClick={() => setActiveTab(collection._id)}
                                 >
                                     {collection.name}
-                                </button>
+                                </TabButton>
                             </li>
                         ))}
-                    </ul>
+                    </TabContainer>
 
-                    {/* Recipes for the active collection */}
                     {collections.map((collection) =>
                         activeTab === collection._id ? (
-                            <div key={collection._id} className="tab-content">
+                            <TabContent key={collection._id}>
                                 {collection.recipes.length === 0 ? (
                                     <p>No recipes in this collection.</p>
                                 ) : (
                                     <div className="row">
                                         {collection.recipes.map((recipe) => (
-                                            <div key={recipe._id} className="col-md-4">
-                                                <div className="card">
+                                            <div key={recipe._id} className="col-md-4 col-sm-6 mb-4">
+                                                <div className="card h-100 shadow-sm">
                                                     <Link to={`/recipe/${recipe._id}`}>
                                                         <img
-                                                            src={recipe.image || 'https://via.placeholder.com/150'}
+                                                            src={recipe.image || DefaultImg}
                                                             className="card-img-top"
                                                             alt={recipe.title}
+                                                            style={{ objectFit: 'cover', height: '200px' }}
                                                         />
                                                     </Link>
-                                                    <div className="card-body">
+                                                    <div className="card-body d-flex flex-column">
                                                         <h5 className="card-title">
-                                                            <Link to={`/recipe/${recipe._id}`}>{recipe.title}</Link>
+                                                            <Link to={`/recipe/${recipe._id}`} className="text-decoration-none text-dark">
+                                                                {recipe.title}
+                                                            </Link>
                                                         </h5>
+                                                        <Link to={`/recipe/${recipe._id}`} className="btn btn-primary mt-auto">
+                                                            View Recipe
+                                                        </Link>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
-                            </div>
+                            </TabContent>
                         ) : null
                     )}
                 </>

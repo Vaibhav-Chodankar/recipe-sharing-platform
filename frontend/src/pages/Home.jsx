@@ -6,21 +6,22 @@ function Home() {
     const [recipes, setRecipes] = useState([]);
     const [filteredRecipes, setFilteredRecipes] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [category, setCategory] = useState(''); // Category filter state
+    const [category, setCategory] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [recipesPerPage] = useState(6); // Number of recipes per page
+    const [recipesPerPage] = useState(6);
 
-    const categories = ['All', 'Appetizers', 'Breakfast', 'Main Dishes', 'Side Dishes', 'Desserts', 'Beverages', 'Salads', 'Soups', 'Snacks', 'Sauces & Condiments', 'Vegetarian', 'Vegan'];
+    const categories = [
+        '--Filter Recipes--', 'Appetizers', 'Breakfast', 'Main Dishes', 'Side Dishes',
+        'Desserts', 'Beverages', 'Salads', 'Soups', 'Snacks',
+        'Sauces & Condiments', 'Vegetarian', 'Vegan'
+    ];
 
     useEffect(() => {
         async function fetchData() {
             const { data } = await getAllRecipes();
-            
-            // Sort recipes by created date in descending order
             const sortedRecipes = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            
             setRecipes(sortedRecipes);
-            setFilteredRecipes(sortedRecipes); // Initialize filtered recipes
+            setFilteredRecipes(sortedRecipes);
         }
         fetchData();
     }, []);
@@ -53,19 +54,19 @@ function Home() {
             filtered = filtered.filter(recipe => recipe.title.toLowerCase().includes(searchTerm.toLowerCase()));
         }
 
-        if (category && category !== 'All') {
+        if (category && category !== '--Filter Recipes--') {
             filtered = filtered.filter(recipe => recipe.category === category);
         }
 
         setFilteredRecipes(filtered);
-        setCurrentPage(1); // Reset to first page on filter change
+        setCurrentPage(1);
+
     };
 
     return (
-        <div className="container mt-5">
-            {/* Search Input */}
+        <div className="container mt-5 pt-5">
             <div className="row mb-4">
-                <div className="col-md-6">
+                <div className="col-md-6 mb-3">
                     <input
                         type="text"
                         className="form-control"
@@ -75,8 +76,7 @@ function Home() {
                     />
                 </div>
 
-                {/* Category Filter */}
-                <div className="col-md-6">
+                <div className="col-md-6 mb-3">
                     <select className="form-control" value={category} onChange={handleCategoryChange}>
                         {categories.map((cat, index) => (
                             <option key={index} value={cat}>
@@ -87,16 +87,20 @@ function Home() {
                 </div>
             </div>
 
-            {/* Recipe Cards */}
             <div className="row">
-                {currentRecipes.map(recipe => (
-                    <div key={recipe._id} className="col-md-4 mb-4">
-                        <RecipeCard recipe={recipe} />
+                {currentRecipes.length > 0 ? (
+                    currentRecipes.map(recipe => (
+                        <div key={recipe._id} className="col-sm-6 col-md-4 mb-4">
+                            <RecipeCard recipe={recipe} />
+                        </div>
+                    ))
+                ) : (
+                    <div className="col-12">
+                        <p className="text-center">No recipes available.</p>
                     </div>
-                ))}
+                )}
             </div>
 
-            {/* Pagination Controls */}
             <div className="row">
                 <div className="col">
                     <nav>

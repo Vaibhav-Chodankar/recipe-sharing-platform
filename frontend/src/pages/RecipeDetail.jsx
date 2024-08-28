@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import DefaultImg from '../assets/recipe-placeholder.jpg';
 import { useParams } from 'react-router-dom';
-import { getRecipeById, likeRecipe, addCommentToRecipe, addToCollection } from '../services/recipeService'; // Import necessary services
-import CommentSection from '../components/CommentSection'; // Import CommentSection component
-import LikeButton from '../components/LikeButton'; // Import LikeButton component
-import AddToCollection from '../components/AddToCollection'; // Import AddToCollection component
+import { getRecipeById, likeRecipe, addCommentToRecipe } from '../services/recipeService';
+import CommentSection from '../components/CommentSection';
+import LikeButton from '../components/LikeButton';
+import AddToCollection from '../components/AddToCollection';
+import { toast } from 'react-toastify';
 
 function RecipeDetail() {
     const { id } = useParams();
     const [recipe, setRecipe] = useState(null);
-    const [newComment, setNewComment] = useState(''); // State for new comment
+    const [newComment, setNewComment] = useState('');
 
     useEffect(() => {
         async function fetchData() {
@@ -16,7 +18,7 @@ function RecipeDetail() {
                 const { data } = await getRecipeById(id);
                 setRecipe(data);
             } catch (err) {
-                console.error('Error fetching recipe:', err);
+                toast.error('Error fetching recipe.');
             }
         }
         fetchData();
@@ -24,53 +26,61 @@ function RecipeDetail() {
 
     if (!recipe) return <div className="text-center mt-5">Loading...</div>;
 
-    const recipeImage = recipe.image ? `${recipe.image}` : 'https://via.placeholder.com/600x400';
+    const recipeImage = recipe.image ? `${recipe.image}` : DefaultImg;
 
-    // Handle liking a recipe
     const handleLike = async () => {
         try {
-            const { data } = await likeRecipe(id); // Get updated recipe data after like
-            setRecipe(data); // Update state with new data
+            const { data } = await likeRecipe(id);
+            setRecipe(data);
         } catch (err) {
-            console.error('Error liking recipe:', err);
+            if (err.response.status === 401 && err.response.data.message === "Token is not valid") {
+                toast.info('Please log in to access this feature.');
+            } else
+                toast.error('Error liking recipe.');
         }
     };
 
-    // Handle adding a new comment
     const handleAddComment = async () => {
-        if (!newComment.trim()) return; // Prevent empty comments
+        if (!newComment.trim()) return;
         try {
-            const { data } = await addCommentToRecipe(id, { text: newComment }); // Get updated recipe data after adding a comment
-            setRecipe(data); // Update state with new data
-            setNewComment(''); // Clear the input field
+            const { data } = await addCommentToRecipe(id, { text: newComment });
+            setRecipe(data);
+            setNewComment('');
+            toast.success('Comment added!');
         } catch (err) {
-            console.error('Error adding comment:', err);
+            if (err.response.status === 401 && err.response.data.message === "Token is not valid") {
+                toast.info('Please log in to access this feature.');
+            } else
+                toast.error('Error adding comment.');
         }
     };
 
     return (
-        <div className="container mt-5">
-            <div className="card">
-                <img src={recipeImage} className="card-img-top" alt={recipe.title} />
-                <div className="card-body">
-                    <h1 className="card-title">{recipe.title}</h1>
-                    <hr />
-                    <p className="card-text"><strong>Ingredients:</strong></p>
-                    <p className="card-text">{recipe.ingredients}</p>
-                    <p className="card-text"><strong>Steps:</strong></p>
-                    <p className="card-text">{recipe.steps}</p>
-                    <p className="card-text"><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
-                    <p className="card-text"><strong>Category:</strong> {recipe.category}</p>
+        <div className="container mt-5 pt-5">
+            <div className="row">
+                <div className="col-lg-8 col-md-7">
+                    <div className="card">
+                        <img src={recipeImage} className="card-img-top img-fluid img-thumbnail" alt={recipe.title} />
+                        <div className="card-body">
+                            <h1 className="card-title">{recipe.title}</h1>
+                            <hr />
+                            <p className="card-text"><strong>Ingredients:</strong></p>
+                            <p className="card-text">{recipe.ingredients}</p>
+                            <p className="card-text"><strong>Steps:</strong></p>
+                            <p className="card-text">{recipe.steps}</p>
+                            <p className="card-text"><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
+                            <p className="card-text"><strong>Category:</strong> {recipe.category}</p>
 
-                    {/* Like Button Component */}
-                    <LikeButton likes={recipe.likes} onLike={handleLike} />
+                            <LikeButton likes={recipe.likes} onLike={handleLike} />
 
-                    {/* Add to Collection Component */}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-lg-4 col-md-5">
                     <AddToCollection recipeId={id} />
-
-                    {/* Comment Section Component */}
                     <CommentSection
-                        comments={recipe.comments || []} // Ensure comments is an array
+                        comments={recipe.comments || []}
                         newComment={newComment}
                         setNewComment={setNewComment}
                         onAddComment={handleAddComment}

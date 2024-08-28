@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addRecipe } from '../services/recipeService';
+import { toast } from 'react-toastify';
 
 function AddRecipe() {
     const [title, setTitle] = useState('');
@@ -8,7 +9,7 @@ function AddRecipe() {
     const [steps, setSteps] = useState('');
     const [cookingTime, setCookingTime] = useState('');
     const [image, setImage] = useState(null);
-    const [category, setCategory] = useState('Appetizers'); // Default category
+    const [category, setCategory] = useState('Appetizers');
     const navigate = useNavigate();
 
     const handleImageChange = (e) => {
@@ -31,19 +32,21 @@ function AddRecipe() {
                 steps,
                 cookingTime,
                 image,
-                category, // Include category in the form data
+                category,
             };
 
             await addRecipe(formData);
+            toast.success("New recipe added successfully")
             navigate('/');
         } catch (err) {
             console.error(err);
+            toast.error("Failed to add new recipe")
         }
     };
 
     return (
-        <div className="d-flex justify-content-center align-items-center vh-100">
-            <div className="card shadow-sm" style={{ width: '500px' }}>
+        <div className="container d-flex justify-content-center align-items-center min-vh-100 py-4 mt-5 pt-4 mb-5">
+            <div className="card shadow-sm p-4" style={{ maxWidth: '600px', width: '100%' }}>
                 <div className="card-body">
                     <h3 className="card-title text-center mb-4">Add New Recipe</h3>
                     <form onSubmit={handleSubmit}>
@@ -104,7 +107,7 @@ function AddRecipe() {
                         <div className="mb-3">
                             <label htmlFor="category" className="form-label">Category</label>
                             <select
-                                className="form-control"
+                                className="form-select"
                                 id="category"
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
@@ -124,7 +127,7 @@ function AddRecipe() {
                                 <option value="Vegan">Vegan</option>
                             </select>
                         </div>
-                        <button type="submit" className="btn btn-primary w-100">Add Recipe</button>
+                        <button type="submit" className="btn btn-primary w-100 mt-3">Add Recipe</button>
                     </form>
                 </div>
             </div>
