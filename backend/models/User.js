@@ -15,6 +15,20 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    collections: [
+        {
+            name: {
+                type: String,
+                required: true,
+            },
+            recipes: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Recipe',
+                },
+            ],
+        },
+    ],
     createdAt: {
         type: Date,
         default: Date.now,

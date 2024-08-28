@@ -42,3 +42,39 @@ export const deleteRecipe = (id) => {
         }
     });
 };
+
+export const likeRecipe = (id) => {
+    return axios.post(
+        `${API_URL}/recipes/${id}/like`, 
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        }
+    );
+};
+
+export const addCommentToRecipe = (id, comment) => {
+    return axios.post(
+        `${API_URL}/recipes/${id}/comments`,
+        comment,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        }
+    );
+};
+
+export const addToCollection = (recipeId, collectionName) => {
+    return axios.post(
+        `${API_URL}/recipes/${recipeId}/add-to-collection`,
+        { collectionName },
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        }
+    );
+};
