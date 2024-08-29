@@ -27,7 +27,7 @@ const Container = styled.div`
 function Loader() {
     return (
         <Container>
-            <div class="loader"></div>
+            <div className="loader"></div>
         </Container>
     );
 }
