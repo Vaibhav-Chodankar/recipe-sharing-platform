@@ -4,6 +4,7 @@ import { getUserCollections } from '../services/recipeService';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import DefaultImg from '../assets/recipe-placeholder.jpg';
+import Loader from '../components/Loader';
 
 const TabContainer = styled.ul`
     display: flex;
@@ -63,7 +64,7 @@ function UserCollections() {
     }, []);
 
     if (loading) {
-        return <div className="text-center mt-5 pt-5">Loading...</div>;
+        return <div className="d-flex justify-content-center align-items-center"> <Loader/> </div>;
     }
 
     return (

@@ -6,6 +6,7 @@ import CommentSection from '../components/CommentSection';
 import LikeButton from '../components/LikeButton';
 import AddToCollection from '../components/AddToCollection';
 import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
 
 function RecipeDetail() {
     const { id } = useParams();
@@ -24,7 +25,7 @@ function RecipeDetail() {
         fetchData();
     }, [id]);
 
-    if (!recipe) return <div className="text-center mt-5">Loading...</div>;
+    if (!recipe) return <div className="d-flex justify-content-center align-items-center"> <Loader/> </div>;
 
     const recipeImage = recipe.image ? `${recipe.image}` : DefaultImg;
 
