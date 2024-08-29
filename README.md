@@ -114,7 +114,7 @@ npm start</code>
 
 <h3>4. Recipe Details Page</h3>
 <ul>
-  <li><strong>Recipe Information:</strong> Displays detailed information about a specific recipe, including ingredients, steps, category, likes, and comments.</li>
+  <li><strong>Recipe Information:</strong> Displays detailed information about a specific recipe, including ingredients, steps, category, likes, and comments (if their is no image, a default image will be shown).</li>
   <li><strong>Comments Section:</strong> Allows authenticated users to add comments and view existing comments.</li>
   <li><strong>Like Button:</strong> Users can like a recipe, and the total number of likes is displayed.</li>
 </ul>
