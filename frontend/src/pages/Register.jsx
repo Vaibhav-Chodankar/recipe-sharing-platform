@@ -23,8 +23,10 @@ function Register() {
             toast.success('Registration successful!');
             navigate('/');
         } catch (err) {
-            toast.error('Registration failed. Please try again.');
-            console.error(err);
+            if (err.response.data.message === "User already exists") {
+                toast.info('Email already exists!')
+            } else
+                toast.error('Registration failed. Please try again.');
         }
     };
 
