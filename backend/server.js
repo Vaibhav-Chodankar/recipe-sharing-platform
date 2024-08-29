@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Connect Database
+// Database Connection
 connectDB();
 
 const app = express();
@@ -15,7 +15,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors());
 
-// Define Routes
+// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api', require('./routes/recipeRoutes'));
 
